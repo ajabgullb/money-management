@@ -2,12 +2,12 @@
 
 import React from 'react'
 
-const error = () => {
+const Hero = () => {
   return (
     <div>
-      <h1>Error</h1>
+      Hero
     </div>
   )
 }
 
-export default error
+export default Hero

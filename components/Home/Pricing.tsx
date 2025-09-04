@@ -2,12 +2,12 @@
 
 import React from 'react'
 
-const error = () => {
+const Pricing = () => {
   return (
     <div>
-      <h1>Error</h1>
+      Pricing
     </div>
   )
 }
 
-export default error
+export default Pricing

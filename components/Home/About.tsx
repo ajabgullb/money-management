@@ -2,12 +2,12 @@
 
 import React from 'react'
 
-const error = () => {
+const About = () => {
   return (
     <div>
-      <h1>Error</h1>
+      About
     </div>
   )
 }
 
-export default error
+export default About
