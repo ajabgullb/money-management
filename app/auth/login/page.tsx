@@ -1,10 +1,11 @@
-import { Login } from "../../../components/index"
+"use client"
+
 import React from 'react'
 
 const Page = () => {
   return (
     <div>
-      <Login />
+      Login
     </div>
   )
 }

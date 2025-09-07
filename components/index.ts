@@ -7,10 +7,6 @@ import About from "./Home/About";
 import Pricing from "./Home/Pricing";
 import Contact from "./Home/Contact";
 
-// Auth Comps
-import Login from "./auth/Login";
-import Register from "./auth/Register";
-
 // Container Comp
 import Container from "./Container";
 import ProtectedRoute from "./ProtectedRoute";
@@ -25,8 +21,6 @@ export {
   About,
   Pricing,
   Contact,
-  Login,
-  Register,
   Container,
   ProtectedRoute,
   LandHero,

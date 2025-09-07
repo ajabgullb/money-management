@@ -1,12 +1,11 @@
 "use client"
 
-import { Register } from '@/components/index'
 import React from 'react'
 
 const Page = () => {
   return (
     <div>
-      <Register />
+      Register
     </div>
   )
 }
