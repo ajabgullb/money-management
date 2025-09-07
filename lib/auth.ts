@@ -2,6 +2,21 @@ import supabase from "./supabaseClient";
 
 class Auth {
 
+  async waitlistSignup (email: string) {
+    try {
+      const { data, error } = await supabase
+        .from('waitlist')
+        .insert([{ email }])
+
+      if (error) throw error;
+      
+      return data;
+    } catch (error) {
+      console.log(`The error from signUpNewUser: ${error}`)
+      throw error;
+    }
+  }
+
   async signUpNewUser(email: string, password: string) {
     try {
       const { data, error } = await supabase.auth.signUp({

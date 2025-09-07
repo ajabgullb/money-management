@@ -15,6 +15,9 @@ import Register from "./auth/Register";
 import Container from "./Container";
 import ProtectedRoute from "./ProtectedRoute";
 
+// Landing Page Comps
+import LandHero from "./LandingPage/Hero";
+
 export {
   Header,
   Footer,
@@ -26,6 +29,7 @@ export {
   Register,
   Container,
   ProtectedRoute,
+  LandHero,
 }
 
 

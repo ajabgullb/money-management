@@ -1,16 +1,14 @@
-"use client"
+"use client";
 
-import { Hero, About, Pricing, Contact, Container } from "../components/index"
+import React from 'react'
+import { LandHero } from '@/components/index'
 
-export default function Home() {
+const Page = () => {
   return (
-    <>
-      <Container>
-        <Hero />
-        <About />
-        <Pricing />
-        <Contact />
-      </Container>
-    </>
-  );
+    <div>
+      <LandHero />
+    </div>
+  )
 }
+
+export default Page
