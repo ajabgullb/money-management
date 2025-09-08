@@ -46,7 +46,7 @@ const JoinWaitlist = () => {
             Join the waitlist
           </h3>
           <p className="mt-2 text-sm text-gray-600">
-            Get an invite when our beta opens. No spam, unsubscribe anytime.
+            {"Get an invite when our beta opens. No spam, unsubscribe anytime."}
           </p>
         </div>
 
@@ -108,7 +108,7 @@ const JoinWaitlist = () => {
           </form>
         ) : (
           <div className="mt-8 rounded-xl border bg-green-50 p-4 text-center text-green-800">
-            <p className="text-sm sm:text-base">Thanks for joining!  We'll email you when the beta opens.</p>
+            <p className="text-sm sm:text-base">{"Thanks for joining! We'll email you when the beta opens."}</p>
           </div>
         )}
 
