@@ -1,0 +1,221 @@
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import { motion } from "framer-motion"
+import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
+import { cn } from "@/lib/utils"
+
+interface LoginFormData {
+  email: string
+  password: string
+  rememberMe: boolean
+}
+
+interface FormErrors {
+  email?: string
+  password?: string
+  general?: string
+}
+
+const Login = () => {
+  const [formData, setFormData] = useState<LoginFormData>({
+    email: "",
+    password: "",
+    rememberMe: false,
+  })
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {}
+
+    // Email validation
+    if (!formData.email) {
+      newErrors.email = "Email is required"
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address"
+    }
+
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = "Password is required"
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!validateForm()) {
+      return
+    }
+
+    setIsLoading(true)
+    setErrors({})
+
+    
+  }
+
+  const handleInputChange = (field: keyof LoginFormData, value: string | boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+    // Clear field-specific errors when user starts typing
+    if (errors[field as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }))
+    }
+  }
+
+  return (
+    <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+      <CardHeader className="space-y-1 pb-4">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900">Sign in to your account</h2>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* General Error */}
+          {errors.general && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg"
+            >
+              {errors.general}
+            </motion.div>
+          )}
+
+          {/* Email Field */}
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              Email address
+            </Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                className={cn(
+                  "pl-10 h-11 transition-all duration-200",
+                  "focus:ring-2 focus:ring-green-500 focus:border-green-500",
+                  errors.email && "border-red-300 focus:border-red-500 focus:ring-red-500",
+                )}
+                disabled={isLoading}
+                autoComplete="email"
+              />
+            </div>
+            {errors.email && (
+              <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-sm text-red-600">
+                {errors.email}
+              </motion.p>
+            )}
+          </div>
+
+          {/* Password Field */}
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              Password
+            </Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={(e) => handleInputChange("password", e.target.value)}
+                className={cn(
+                  "pl-10 pr-10 h-11 transition-all duration-200",
+                  "focus:ring-2 focus:ring-green-500 focus:border-green-500",
+                  errors.password && "border-red-300 focus:border-red-500 focus:ring-red-500",
+                )}
+                disabled={isLoading}
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                disabled={isLoading}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            {errors.password && (
+              <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-sm text-red-600">
+                {errors.password}
+              </motion.p>
+            )}
+          </div>
+
+          {/* Remember Me & Forgot Password */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="remember"
+                checked={formData.rememberMe}
+                onCheckedChange={(checked) => handleInputChange("rememberMe", checked as boolean)}
+                disabled={isLoading}
+                className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+              />
+              <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
+                Remember me
+              </Label>
+            </div>
+            <Button
+              type="button"
+              variant="link"
+              className="text-sm text-green-500 hover:text-green-600 p-0 h-auto"
+              disabled={isLoading}
+            >
+              Forgot password?
+            </Button>
+          </div>
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            className={cn(
+              "w-full h-11 bg-green-500 hover:bg-green-600 text-white font-medium",
+              "transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]",
+              "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none",
+            )}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Signing in...
+              </motion.div>
+            ) : (
+              "Sign in"
+            )}
+          </Button>
+
+          {/* Demo Credentials */}
+          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-xs text-green-700 font-medium mb-1">Demo Credentials:</p>
+            <p className="text-xs text-green-600">Email: demo@envomag.com</p>
+            <p className="text-xs text-green-600">Password: password</p>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  )
+}
+
+export default Login
