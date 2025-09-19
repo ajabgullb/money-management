@@ -12,10 +12,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 
+import auth from "@/lib/auth"
+import { useDispatch } from "react-redux"
+import { useRouter } from 'next/navigation';
+
 interface LoginFormData {
   email: string
   password: string
-  rememberMe: boolean
+    rememberMe: boolean
 }
 
 interface FormErrors {
@@ -33,6 +37,9 @@ const Login = () => {
   const [errors, setErrors] = useState<FormErrors>({})
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  
+  const dispatch = useDispatch()
+  const router = useRouter()
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {}
@@ -56,16 +63,40 @@ const Login = () => {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    try {
+      e.preventDefault()
+      setIsLoading(true)
+      setErrors({})
 
-    if (!validateForm()) {
-      return
+      if (!validateForm()) {
+        setIsLoading(false)
+        return
+      }
+
+      const data = await auth.signIn(
+        formData.email, 
+        formData.password,
+        dispatch
+      )
+      
+      if (data.user) {
+        console.log('Sign in successful');
+
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 1000)
+      }
+
+    } catch (error) {
+      console.log(`The error from handleSubmit: ${error}`)
+      setIsLoading(false)
+      setErrors({
+        general: "Something went wrong :: handleSubmit(), Please try again!"
+      })
+
+      throw error
     }
 
-    setIsLoading(true)
-    setErrors({})
-
-    
   }
 
   const handleInputChange = (field: keyof LoginFormData, value: string | boolean) => {

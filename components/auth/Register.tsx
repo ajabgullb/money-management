@@ -11,6 +11,11 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
+import { useRouter } from 'next/navigation';
+
+import auth from "@/lib/auth"
+import { useDispatch } from "react-redux"
+import { login } from "@/store/slices/authSlice"
 
 interface SignupFormData {
   firstName: string
@@ -40,10 +45,12 @@ const Register = () => {
     confirmPassword: "",
     agreeToTerms: false,
   })
+  const dispatch = useDispatch()
   const [errors, setErrors] = useState<FormErrors>({})
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {}
@@ -103,6 +110,35 @@ const Register = () => {
 
     setIsLoading(true)
     setErrors({})
+
+    try {
+      const data = await auth.signUpNewUser(formData.email, 
+        formData.password, 
+        formData.firstName, 
+        formData.lastName
+      )
+
+      
+      console.log('Signup successful:', data)
+
+      if (data) {
+        setIsLoading(false)
+      
+        dispatch(login({
+          authStatus: true,
+          userData: data.user
+        }))
+
+        router.push('/auth/login');
+      }
+
+    } catch (error) {
+      console.log(`The error from handleSubmit: ${error}`)
+      setIsLoading(false)
+      setErrors({
+        general: "Something went wrong :: handleSubmit(), Please try again!"
+      })
+    }
 
   }
 
