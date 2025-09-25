@@ -18,6 +18,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import LandHero from "./LandingPage/Hero";
 
 import Logo from "./header/Logo"
+import Dashboard from "./dashboard/Dashboard"
 
 export {
   Header,
@@ -31,5 +32,6 @@ export {
   Login,
   Register,
   Logo,
+  Dashboard,
 }
 
