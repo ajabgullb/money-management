@@ -7,7 +7,7 @@ import { Zap } from "lucide-react"
 
 const LoginPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
+    <div className="bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4 mt-5">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -15,12 +15,12 @@ const LoginPage = () => {
         className="w-full max-w-md"
       >
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center my-8">
           <motion.div
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
-            className="inline-flex items-center gap-2 mb-4"
+            className="inline-flex items-center gap-2 mb-8"
           >
             <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
               <Zap className="w-6 h-6 text-white" />
@@ -63,7 +63,7 @@ const LoginPage = () => {
         >
           <p className="text-sm text-gray-600">
             {"Don't have an account? "}
-            <Link href="/signup" className="font-medium text-green-500 hover:text-green-600 transition-colors">
+            <Link href="/auth/register" className="font-medium text-green-500 hover:text-green-600 transition-colors">
               Sign up for free
             </Link>
           </p>

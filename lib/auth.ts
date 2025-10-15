@@ -3,10 +3,9 @@ import { login } from "@/store/slices/authSlice";
 import { AppDispatch } from "@/store/store";
 
 class Auth {
-  async createUserProfile (userId: string, email: string, firstName: string, lastName: string) {
+  async createUserProfile (email: string, firstName: string, lastName: string) {
     try {
       const payload = {
-        id: userId,
         first_name: firstName,
         last_name: lastName,
         email: email,
@@ -19,11 +18,7 @@ class Auth {
         payload.last_name = lastName;
       }
 
-      const { data, error } = await supabase.from("Users").upsert(payload, {
-        onConflict: "id"
-      })
-      .select()
-      .single()
+      const { data, error } = await supabase.from("users").insert(payload)
 
       if (error) {
         console.error('Error upserting user profile:', error);
@@ -52,7 +47,7 @@ class Auth {
     }
   }
 
-  async signUpNewUser(email: string, password: string, firstName: string, lastName: string) {
+  async signUpNewUser(email: string, password: string, name: string, phoneNumber: string) {
     try {
       const { data, error } = await supabase.auth.signUp({
         email: email,
@@ -68,26 +63,31 @@ class Auth {
       }
 
       if (data.user) {
-        // Insert into your users table
-        const { error: insertError } = await supabase
-          .from('Users')
+        const { data: insertData, error: insertError } = await supabase
+          .from('users')
           .insert({ 
             user_id: data.user.id,
-            first_name: firstName,
-            last_name: lastName,
+            display_name: name,
+            phone: phoneNumber,
             email: data.user.email,
-            created_at: new Date().toString(),
-            updated_at: new Date().toString(),
+            providers: 'Email',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           });
 
-        if (insertError) console.error('Insert error:', insertError);
+        if (insertError) {
+          console.error('Insert error:', insertError);
+          throw insertError;
+        }
+        
+        console.log('User inserted successfully:', insertData);
       }
       
       return data;
     } catch (error) {
+      console.error('SignUp error:', error);
       throw error;
     }
-    
   }
 
   async signIn(email: string, password: string, dispatch: AppDispatch) {
@@ -96,6 +96,8 @@ class Auth {
         email: email,
         password: password
       })
+
+      console.log(data)
   
       if (error) {
         console.error('Sign in error:', error);
@@ -163,6 +165,22 @@ class Auth {
       if (error) throw error;
     } catch (error) {
       console.log(`The error from signOut: ${error}`)
+      throw error;
+    }
+    
+  }
+
+  async getUserID() {
+    try {
+      const user = await supabase.auth.getUser()
+
+      if (!user || !user.data.user) {
+        throw new Error("User not found");
+      }
+
+      return user.data.user.id;
+    } catch (error) {
+      console.log(`The error from getUserID: ${error}`)
       throw error;
     }
     

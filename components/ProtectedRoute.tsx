@@ -19,7 +19,6 @@ const ProtectedRoute = ({
   const authStatus = useSelector((state: RootState) => state.auth.authStatus);
 
   useEffect(() => {
-    console.log(authStatus)
     if (authentication && !authStatus) {
       router.push('/auth/login');
     }

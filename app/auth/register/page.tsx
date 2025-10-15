@@ -5,7 +5,7 @@ import { Register } from '@/components/index'
 
 const Page = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 flex items-center justify-center p-4">
+    <div className="bg-gradient-to-br from-green-50 via-white to-green-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* EnvoMag Logo */}
         <div className="text-center mb-8">
@@ -19,7 +19,7 @@ const Page = () => {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
-            <a href="/login" className="text-green-500 hover:text-green-600 font-medium transition-colors">
+            <a href="/auth/login" className="text-green-500 hover:text-green-600 font-medium transition-colors">
               Sign in
             </a>
           </p>

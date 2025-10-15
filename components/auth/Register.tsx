@@ -4,22 +4,22 @@ import type React from "react"
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User, Loader2, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'
 
 import auth from "@/lib/auth"
 import { useDispatch } from "react-redux"
 import { login } from "@/store/slices/authSlice"
 
 interface SignupFormData {
-  firstName: string
-  lastName: string
+  name: string
+  phoneNumber: string
   email: string
   password: string
   confirmPassword: string
@@ -27,8 +27,8 @@ interface SignupFormData {
 }
 
 interface FormErrors {
-  firstName?: string
-  lastName?: string
+  name?: string
+  phoneNumber?: string
   email?: string
   password?: string
   confirmPassword?: string
@@ -38,8 +38,8 @@ interface FormErrors {
 
 const Register = () => {
   const [formData, setFormData] = useState<SignupFormData>({
-    firstName: "",
-    lastName: "",
+    name: "",
+    phoneNumber: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -50,23 +50,25 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter();
+  const router = useRouter()
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {}
 
-    // First name validation
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "First name is required"
-    } else if (formData.firstName.trim().length < 2) {
-      newErrors.firstName = "First name must be at least 2 characters"
+    // Name validation
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required"
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = "Name must be at least 2 characters"
     }
 
-    // Last name validation
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "Last name is required"
-    } else if (formData.lastName.trim().length < 2) {
-      newErrors.lastName = "Last name must be at least 2 characters"
+    // Phone number validation
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required"
+    } else if (!/^[\d\s\+\-\(\)]+$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = "Please enter a valid phone number"
+    } else if (formData.phoneNumber.replace(/\D/g, '').length < 10) {
+      newErrors.phoneNumber = "Phone number must be at least 10 digits"
     }
 
     // Email validation
@@ -112,12 +114,17 @@ const Register = () => {
     setErrors({})
 
     try {
-      const data = await auth.signUpNewUser(formData.email, 
-        formData.password, 
-        formData.firstName, 
-        formData.lastName
-      )
+      // Split name into first and last name for the API
+      const nameParts = formData.name.trim().split(' ')
+      const firstName = nameParts[0]
+      const lastName = nameParts.slice(1).join(' ') || firstName
 
+      const data = await auth.signUpNewUser(
+        formData.email, 
+        formData.password, 
+        formData.name,
+        formData.phoneNumber
+      )
       
       console.log('Signup successful:', data)
 
@@ -129,7 +136,7 @@ const Register = () => {
           userData: data.user
         }))
 
-        router.push('/auth/login');
+        router.push('/dashboard')
       }
 
     } catch (error) {
@@ -139,7 +146,6 @@ const Register = () => {
         general: "Something went wrong :: handleSubmit(), Please try again!"
       })
     }
-
   }
 
   const handleInputChange = (field: keyof SignupFormData, value: string | boolean) => {
@@ -170,73 +176,37 @@ const Register = () => {
             </motion.div>
           )}
 
-          {/* Name Fields */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* First Name */}
-            <div className="space-y-2">
-              <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
-                First name
-              </Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  id="firstName"
-                  type="text"
-                  placeholder="First name"
-                  value={formData.firstName}
-                  onChange={(e) => handleInputChange("firstName", e.target.value)}
-                  className={cn(
-                    "pl-10 h-11 transition-all duration-200",
-                    "focus:ring-2 focus:ring-green-500 focus:border-green-500",
-                    errors.firstName && "border-red-300 focus:border-red-500 focus:ring-red-500",
-                  )}
-                  disabled={isLoading}
-                  autoComplete="given-name"
-                />
-              </div>
-              {errors.firstName && (
-                <motion.p
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-sm text-red-600"
-                >
-                  {errors.firstName}
-                </motion.p>
-              )}
+          {/* Name Field */}
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+              Full name
+            </Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                id="name"
+                type="text"
+                placeholder="Enter your full name"
+                value={formData.name}
+                onChange={(e) => handleInputChange("name", e.target.value)}
+                className={cn(
+                  "pl-10 h-11 transition-all duration-200",
+                  "focus:ring-2 focus:ring-green-500 focus:border-green-500",
+                  errors.name && "border-red-300 focus:border-red-500 focus:ring-red-500",
+                )}
+                disabled={isLoading}
+                autoComplete="name"
+              />
             </div>
-
-            {/* Last Name */}
-            <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
-                Last name
-              </Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  id="lastName"
-                  type="text"
-                  placeholder="Last name"
-                  value={formData.lastName}
-                  onChange={(e) => handleInputChange("lastName", e.target.value)}
-                  className={cn(
-                    "pl-10 h-11 transition-all duration-200",
-                    "focus:ring-2 focus:ring-green-500 focus:border-green-500",
-                    errors.lastName && "border-red-300 focus:border-red-500 focus:ring-red-500",
-                  )}
-                  disabled={isLoading}
-                  autoComplete="family-name"
-                />
-              </div>
-              {errors.lastName && (
-                <motion.p
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-sm text-red-600"
-                >
-                  {errors.lastName}
-                </motion.p>
-              )}
-            </div>
+            {errors.name && (
+              <motion.p
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-sm text-red-600"
+              >
+                {errors.name}
+              </motion.p>
+            )}
           </div>
 
           {/* Email Field */}
@@ -268,6 +238,39 @@ const Register = () => {
             )}
           </div>
 
+          {/* Phone Number Field */}
+          <div className="space-y-2">
+            <Label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">
+              Phone number
+            </Label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                id="phoneNumber"
+                type="tel"
+                placeholder="Enter your phone number"
+                value={formData.phoneNumber}
+                onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+                className={cn(
+                  "pl-10 h-11 transition-all duration-200",
+                  "focus:ring-2 focus:ring-green-500 focus:border-green-500",
+                  errors.phoneNumber && "border-red-300 focus:border-red-500 focus:ring-red-500",
+                )}
+                disabled={isLoading}
+                autoComplete="tel"
+              />
+            </div>
+            {errors.phoneNumber && (
+              <motion.p
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-sm text-red-600"
+              >
+                {errors.phoneNumber}
+              </motion.p>
+            )}
+          </div>
+
           {/* Password Field */}
           <div className="space-y-2">
             <Label htmlFor="password" className="text-sm font-medium text-gray-700">
@@ -292,7 +295,7 @@ const Register = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                 disabled={isLoading}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -329,7 +332,7 @@ const Register = () => {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                 disabled={isLoading}
               >
                 {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -376,7 +379,7 @@ const Register = () => {
             className={cn(
               "w-full h-11 bg-green-500 hover:bg-green-600 text-white font-medium",
               "transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]",
-              "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none",
+              "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer",
             )}
             disabled={isLoading}
           >

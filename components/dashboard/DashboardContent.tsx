@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useMemo } from 'react'
-import { Overview, Accounts, Transactions, Analytics, Budgets, Goals } from "./index"
+import { Overview, Envelopes, Transactions, Analytics, Budgets, Goals } from "./index"
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSelector } from 'react-redux'
 
@@ -12,7 +12,7 @@ const DashboardContent = () => {
   const renderActiveTab = useMemo(() => {
     switch (activeTab) {
       case "overview": return <Overview />
-      case "accounts": return <Accounts />
+      case "envelopes": return <Envelopes />
       case "transactions": return <Transactions />
       case "analytics": return <Analytics />
       case "budgets": return <Budgets />
@@ -26,10 +26,10 @@ const DashboardContent = () => {
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}
-          initial={{ opacity: 0, x: 50 }}
+          initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.3 }}
+          exit={{ opacity: 0, x: -10 }}
+          transition={{ duration: 0.15 }}
         >
           {renderActiveTab}
         </motion.div>

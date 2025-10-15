@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 
-export type Tabs = "overview" | "accounts" | "transactions" | "analytics" | "budgets" | "goals"
+export type Tabs = "overview" | "envelopes" | "transactions" | "analytics" | "budgets" | "goals"
 
 const dashboardSlice = createSlice({
   name: "dashboard",

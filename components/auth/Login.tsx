@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 
 import auth from "@/lib/auth"
@@ -19,7 +18,6 @@ import { useRouter } from 'next/navigation';
 interface LoginFormData {
   email: string
   password: string
-    rememberMe: boolean
 }
 
 interface FormErrors {
@@ -32,7 +30,6 @@ const Login = () => {
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
-    rememberMe: false,
   })
   const [errors, setErrors] = useState<FormErrors>({})
   const [showPassword, setShowPassword] = useState(false)
@@ -180,7 +177,7 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                 disabled={isLoading}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -193,24 +190,12 @@ const Login = () => {
             )}
           </div>
 
-          {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="remember"
-                checked={formData.rememberMe}
-                onCheckedChange={(checked) => handleInputChange("rememberMe", checked as boolean)}
-                disabled={isLoading}
-                className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
-              />
-              <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
-                Remember me
-              </Label>
-            </div>
+          {/* Forgot Password */}
+          <div className="flex items-center justify-end">
             <Button
               type="button"
               variant="link"
-              className="text-sm text-green-500 hover:text-green-600 p-0 h-auto"
+              className="text-sm text-green-500 hover:text-green-600 p-0 h-auto cursor-pointer"
               disabled={isLoading}
             >
               Forgot password?
@@ -223,7 +208,7 @@ const Login = () => {
             className={cn(
               "w-full h-11 bg-green-500 hover:bg-green-600 text-white font-medium",
               "transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]",
-              "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none",
+              "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer",
             )}
             disabled={isLoading}
           >
@@ -237,12 +222,6 @@ const Login = () => {
             )}
           </Button>
 
-          {/* Demo Credentials */}
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-xs text-green-700 font-medium mb-1">Demo Credentials:</p>
-            <p className="text-xs text-green-600">Email: demo@envomag.com</p>
-            <p className="text-xs text-green-600">Password: password</p>
-          </div>
         </form>
       </CardContent>
     </Card>
@@ -250,3 +229,4 @@ const Login = () => {
 }
 
 export default Login
+

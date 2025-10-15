@@ -20,6 +20,8 @@ import LandHero from "./LandingPage/Hero";
 import Logo from "./header/Logo"
 import Dashboard from "./dashboard/Dashboard"
 
+import { CreateEnvelope } from "./popups/index";
+
 export {
   Header,
   Footer,
@@ -33,5 +35,6 @@ export {
   Register,
   Logo,
   Dashboard,
+  CreateEnvelope,
 }
 

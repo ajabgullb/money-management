@@ -25,10 +25,11 @@ const cn = (...classes: (string | undefined | false | null)[]) => {
 
 interface SidebarProps {
   className?: string;
+  isCollapsed: boolean;
+  onToggle: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ className }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+const Sidebar: React.FC<SidebarProps> = ({ className, isCollapsed, onToggle }) => {
   const [activeItem, setActiveItem] = useState<Tabs>('overview');
   const dispatch = useDispatch()
 
@@ -39,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
   const menuItems: { id: Tabs; label: string; icon: React.ComponentType<any> }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'accounts', label: 'Accounts', icon: Wallet },
+    { id: 'envelopes', label: 'Envelopes', icon: Wallet },
     { id: 'transactions', label: 'Transactions', icon: CreditCard },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp },
     { id: 'budgets', label: 'Budgets', icon: PieChart },
@@ -101,7 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={() => onToggle()}
             className={`h-8 w-8 p-0 hover:bg-green-50 cursor-pointer`}
           >
             <motion.div
