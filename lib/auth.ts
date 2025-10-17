@@ -170,6 +170,24 @@ class Auth {
     
   }
 
+  async getUserData (user_id: string) {
+    try {
+      const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('user_id', user_id)
+      .single()
+
+      if (error) console.error("Failed to load profile:", error);
+      
+      return data;
+    } catch (error) {
+      console.log(`The error from getUserData: ${error}`)
+      throw error;
+    }
+    
+  }
+
   async getUserID() {
     try {
       const user = await supabase.auth.getUser()
