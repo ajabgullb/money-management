@@ -22,7 +22,7 @@ const DashboardContent = () => {
   }, [activeTab])
 
   return (
-    <div className="flex-1 p-6">
+    <div className="flex-1">
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}

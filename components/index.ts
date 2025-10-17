@@ -22,6 +22,8 @@ import Dashboard from "./dashboard/Dashboard"
 
 import { CreateEnvelope } from "./popups/index";
 
+import ComingSoon, { ComingSoonDemo } from "./ComingSoon";
+
 export {
   Header,
   Footer,
@@ -36,5 +38,7 @@ export {
   Logo,
   Dashboard,
   CreateEnvelope,
+  ComingSoon,
+  ComingSoonDemo,
 }
 
