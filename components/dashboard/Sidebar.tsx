@@ -27,6 +27,8 @@ interface SidebarProps {
   className?: string;
   isCollapsed: boolean;
   onToggle: () => void;
+  isMobileMenuOpen?: boolean;
+  onMobileMenuClose?: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ className, isCollapsed, onToggle }) => {

@@ -322,13 +322,13 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
           </div>
         </div>
 
-        {/* Bottom Text */}
+        {/* Bottom Text
         <motion.p
           variants={itemVariants}
           className="text-center text-sm text-gray-600 mt-6"
         >
           Have questions? <span className="text-green-600 font-medium cursor-pointer hover:underline">Contact us</span>
-        </motion.p>
+        </motion.p> */}
       </motion.div>
     </div>
   );
