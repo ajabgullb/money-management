@@ -11,6 +11,8 @@ import {
 
 import envelope from '@/lib/categories'
 import auth from '@/lib/auth'
+import { useDispatch } from 'react-redux';
+import { addEnvelope } from '@/store/slices/envelopeSlice';
 
 interface CreateEnvelopeProps {
   isOpen: boolean;
@@ -65,6 +67,8 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
   const [showSuccess, setShowSuccess] = useState(false)
   const isMountedRef = useRef(true)
   const submitAttemptedRef = useRef(false)
+
+  const dispatch = useDispatch()
 
   // Cleanup on unmount
   useEffect(() => {
@@ -199,9 +203,11 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
         };
         
         console.log('Envelope created successfully:', envelopeData);
-        
+
         // Show success message
         setShowSuccess(true);
+        
+        dispatch(addEnvelope(data[0]));
         
         // Call parent callback with properly formatted data
         if (onSubmit) {

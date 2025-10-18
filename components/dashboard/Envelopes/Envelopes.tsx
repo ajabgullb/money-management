@@ -4,25 +4,22 @@ import { Plus, Wallet, Search } from 'lucide-react';
 import { CreateEnvelope } from '@/components/index';
 import auth from "@/lib/auth"
 import envelope from '@/lib/categories';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/store/store';
 
 import EnvelopesSkeleton from './EnvelopeSkeleton';
-
-interface Envelope {
-  envelope_id: string;
-  envelope_title: string;
-  allocated_amount: number;
-  spent_amount: number;
-  category: string;
-}
+import { setEnvelopes } from '@/store/slices/envelopeSlice';
 
 export default function EnvelopesPage() {
-  const [envelopes, setEnvelopes] = useState<Envelope[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateEnvelopeOpen, setIsCreateEnvelopeOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch()
   
   const handleOpenCreateEnvelope = () => setIsCreateEnvelopeOpen(true)
   const handleCloseCreateEnvelope = () => setIsCreateEnvelopeOpen(false)
+
+  const envelopes = useSelector((state: RootState) => state.envelope.envelopes);
 
   const fetchEnvelopes = async () => {
     try {
@@ -36,7 +33,7 @@ export default function EnvelopesPage() {
       const { error, data } = await envelope.getEnvelopes(user_id);
 
       if (error) throw error;
-      setEnvelopes(data);
+      dispatch(setEnvelopes(data))
     } catch (error) {
       console.log("Error fetching Envelopes, ", error);
       throw error;
