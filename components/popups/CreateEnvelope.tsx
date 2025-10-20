@@ -538,7 +538,7 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
                   flex-1 px-4 py-2.5 sm:py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg text-sm sm:text-base
                   hover:bg-white hover:border-gray-400 transition-all
                   disabled:opacity-50 disabled:cursor-not-allowed
-                  focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 outline-none
+                  focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 outline-none cursor-pointer
                 "
               >
                 Cancel
@@ -551,7 +551,7 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
                   hover:bg-green-700 active:bg-green-800 transition-all
                   disabled:opacity-50 disabled:cursor-not-allowed
                   focus:ring-2 focus:ring-green-500 focus:ring-offset-2 outline-none
-                  flex items-center justify-center space-x-2
+                  flex items-center justify-center space-x-2 cursor-pointer
                 "
               >
                 {isLoading ? (

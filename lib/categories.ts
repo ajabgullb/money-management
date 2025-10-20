@@ -64,6 +64,60 @@ class Envelope {
     }
   }
 
+  async updateEnvelope (
+    envelope_id: string,
+    envelope_title: string,
+    description: string,
+    allocated_amount: number,
+    category: string,
+    spent_amount: number
+  ) {
+    try {
+      const { data, error } = await supabase
+        .from('envelopes')
+        .update({ 
+          envelope_title,
+          category,
+          description,
+          allocated_amount,
+          spent_amount,
+        })
+        .eq('envelope_id', envelope_id)
+        .select()
+        .single();
+
+      if (error) {
+        console.log("Error updating Envelope: ", error);
+        throw error;
+      }
+
+      return { error, data};
+    } catch (error) {
+      console.log("Error updating Envelope: ", error);
+      throw error;
+    }
+  }
+
+  async deleteEnvelope (
+    envelope_id: string
+  ) {
+    try {
+      const { data, error } = await supabase
+      .from('envelopes')
+      .delete()
+      .eq('envelope_id', envelope_id);
+
+      if (error) {
+        console.log("Error deleting Envelope, ", error)
+        throw error;
+      }
+
+      return {error, data};
+    } catch (error) {
+      console.log("Error deleting Envelope, ", error)
+      throw error;
+    }
+  }
 }
 
 const envelope = new Envelope();

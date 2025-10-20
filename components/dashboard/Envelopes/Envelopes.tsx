@@ -8,18 +8,21 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 
 import EnvelopesSkeleton from './EnvelopeSkeleton';
-import { setEnvelopes } from '@/store/slices/envelopeSlice';
+import UpdateEnvelope from '@/components/popups/UpdateEnvelope';
+import { setEnvelopes, updateEnvelope, removeEnvelope, Envelope } from '@/store/slices/envelopeSlice';
 
 export default function EnvelopesPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [isCreateEnvelopeOpen, setIsCreateEnvelopeOpen] = useState(false)
+  const [isCreateEnvelopeOpen, setIsCreateEnvelopeOpen] = useState(false);
+  const [isUpdateEnvelopeOpen, setIsUpdateEnvelopeOpen] = useState(false);
+  const [selectedEnvelope, setSelectedEnvelope] = useState<Envelope | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch()
   
   const handleOpenCreateEnvelope = () => setIsCreateEnvelopeOpen(true)
   const handleCloseCreateEnvelope = () => setIsCreateEnvelopeOpen(false)
 
-  const envelopes = useSelector((state: RootState) => state.envelope.envelopes);
+  const stateEnvelopes = useSelector((state: RootState) => state.envelope.envelopes);
 
   const fetchEnvelopes = async () => {
     try {
@@ -39,6 +42,52 @@ export default function EnvelopesPage() {
       throw error;
     } finally { setIsLoading(false); }
   }
+
+  const handleOpenUpdateEnvelope = (envelopeData: Envelope) => {
+    setSelectedEnvelope(envelopeData);
+    setIsUpdateEnvelopeOpen(true);
+  };
+
+  const handleCloseUpdateEnvelope = () => {
+    setIsUpdateEnvelopeOpen(false);
+    setSelectedEnvelope(null);
+  };
+
+  const handleUpdateEnvelope = async (envelopeData: Envelope) => {
+    try {
+      const user_id = await auth.getUserID();
+
+      if (!user_id) {
+        throw new Error("User not found at EnvelopesPage");
+      }
+
+      const { error, data } = await envelope.updateEnvelope(envelopeData.envelope_id, envelopeData.envelope_title, envelopeData.description, envelopeData.allocated_amount, envelopeData.category, envelopeData.spent_amount);
+
+      if (error) throw error;
+
+      if (data) {
+        dispatch(updateEnvelope(envelopeData))
+      }
+    } catch (error) {
+      console.error('Error updating envelope:', error);
+      throw error;
+    }
+  };
+
+  const handleDeleteEnvelope = async (id: string) => {
+    try {
+      console.log('Deleting envelope:', id);
+      // Add your delete logic here
+      // await envelope.deleteEnvelope(id);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Refresh envelopes after delete
+      await fetchEnvelopes();
+    } catch (error) {
+      console.error('Error deleting envelope:', error);
+      throw error;
+    }
+  };
 
   useEffect(() => {
     fetchEnvelopes();
@@ -71,7 +120,7 @@ export default function EnvelopesPage() {
 
   if (isLoading) return <EnvelopesSkeleton />
 
-  if (envelopes.length > 0) {
+  if (stateEnvelopes.length > 0) {
     return (
       <motion.div
         className="p-6 max-w-7xl mx-auto"
@@ -117,32 +166,33 @@ export default function EnvelopesPage() {
 
         {/* Envelopes grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {envelopes
-            .filter(envelope => 
-              envelope.envelope_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              envelope.category.toLowerCase().includes(searchTerm.toLowerCase())
+          {stateEnvelopes
+            .filter(env => 
+              env.envelope_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              env.category.toLowerCase().includes(searchTerm.toLowerCase())
             )
-            .map((envelope, index) => {
-              const progress = (envelope.spent_amount / envelope.allocated_amount) * 100;
-              const available_amount = envelope.allocated_amount - envelope.spent_amount;
+            .map((env, index) => {
+              const progress = (env.spent_amount / env.allocated_amount) * 100;
+              const available_amount = env.allocated_amount - env.spent_amount;
 
               return (
                 <motion.div
-                  key={envelope.envelope_id}
+                  key={env.envelope_id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1, duration: 0.5 }}
                   whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}
                   className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 cursor-pointer hover:border-green-200 transition-all duration-200"
+                  onClick={() => handleOpenUpdateEnvelope(env)}
                 >
                   {/* Envelope Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                        {envelope.envelope_title}
+                        {env.envelope_title}
                       </h3>
                       <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                        {envelope.category}
+                        {env.category}
                       </span>
                     </div>
                     <div className={`w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center`}>
@@ -161,7 +211,7 @@ export default function EnvelopesPage() {
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-gray-600">Allocated Amount</span>
                       <span className="text-lg font-bold text-gray-900">
-                        ${envelope.allocated_amount.toLocaleString()}
+                        ${env.allocated_amount.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -188,12 +238,12 @@ export default function EnvelopesPage() {
                   <div className="pt-4 border-t border-gray-100">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">
-                        {available_amount == 0 ? 'Money\'s Finsished' : 'Spent'}
+                        {available_amount == 0 ? 'Money\'s Finished' : 'Spent'}
                       </span>
                       <span className={`text-sm font-bold ${
                         available_amount == 0 ? 'text-red-500' : 'text-green-600'
                       }`}>
-                        ${envelope.spent_amount.toLocaleString()}
+                        ${env.spent_amount.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -202,9 +252,18 @@ export default function EnvelopesPage() {
             })}
         </div>
 
+        {/* Update Envelope Dialog */}
+        <UpdateEnvelope
+          isOpen={isUpdateEnvelopeOpen}
+          onClose={handleCloseUpdateEnvelope}
+          updatedEnvelope={selectedEnvelope}
+          onUpdate={handleUpdateEnvelope}
+          onDelete={handleDeleteEnvelope}
+        />
+
         {/* Empty search results */}
-        {envelopes.filter(envelope => 
-          envelope.envelope_title.toLowerCase().includes(searchTerm.toLowerCase())
+        {stateEnvelopes.filter(env => 
+          env.envelope_title.toLowerCase().includes(searchTerm.toLowerCase())
         ).length === 0 && searchTerm && (
           <motion.div
             initial={{ opacity: 0 }}
