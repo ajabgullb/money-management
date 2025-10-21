@@ -1,27 +1,72 @@
 "use client"
 
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
 
 interface NavigationProps {
   navItems: readonly { name: string; path: string }[]
 }
 
 const Navigation = ({ navItems }: NavigationProps) => {
-  const pathname = usePathname()
+  const [activeSection, setActiveSection] = useState('')
+
+  // Track which section is currently in view
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = navItems.map(item => {
+        const id = item.path === '/' ? 'home' : item.path.slice(1)
+        return document.getElementById(id)
+      }).filter(Boolean)
+
+      const scrollPosition = window.scrollY + 100 // Offset for header
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i]
+        if (section && section.offsetTop <= scrollPosition) {
+          const id = section.id === 'home' ? '/' : `/${section.id}`
+          setActiveSection(id)
+          break
+        }
+      }
+    }
+
+    handleScroll() // Set initial active section
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [navItems])
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    e.preventDefault()
+    
+    // Convert path to section ID
+    const sectionId = path === '/' ? 'home' : path.slice(1)
+    const section = document.getElementById(sectionId)
+    
+    if (section) {
+      const headerOffset = 80 // Height of your fixed header
+      const elementPosition = section.offsetTop
+      const offsetPosition = elementPosition - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+    }
+  }
 
   return (
     <nav className="hidden md:block" role="navigation">
       <ul className="flex items-center space-x-1">
         {navItems.map((navItem) => {
-          const isActive = pathname === navItem.path
+          const isActive = activeSection === navItem.path
           
           return (
             <li key={navItem.name}>
-              <Link
+              <a
                 href={navItem.path}
-                className={`relative mx-2 px-4 py-2 rounded-lg text-md font-medium transition-all duration-200 ease-out group focus:outline-none  ${
+                onClick={(e) => handleClick(e, navItem.path)}
+                className={`relative mx-2 px-4 py-2 rounded-lg text-md font-medium transition-all duration-200 ease-out group focus:outline-none cursor-pointer ${
                   isActive 
                     ? 'text-white bg-white/20 shadow-md' 
                     : 'text-white/90 hover:text-white hover:bg-white/10'
@@ -52,7 +97,7 @@ const Navigation = ({ navItems }: NavigationProps) => {
                     transition={{ type: "spring", duration: 0.3 }}
                   />
                 )}
-              </Link>
+              </a>
             </li>
           )
         })}

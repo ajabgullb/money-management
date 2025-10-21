@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useRef, useEffect } from 'react'
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import AuthButtons from './AuthButtons'
@@ -12,16 +11,39 @@ interface MobileMenuProps {
 
 const MobileMenu = ({ navItems }: MobileMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState('')
   const pathname = usePathname()
   const menuRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
-  // Close menu on route change
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = navItems.map(item => {
+        const id = item.path === '/' ? 'home' : item.path.slice(1)
+        return document.getElementById(id)
+      }).filter(Boolean)
+
+      const scrollPosition = window.scrollY + 100 // Offset for header
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i]
+        if (section && section.offsetTop <= scrollPosition) {
+          const id = section.id === 'home' ? '/' : `/${section.id}`
+          setActiveSection(id)
+          break
+        }
+      }
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [navItems])
+
   useEffect(() => {
     setIsMenuOpen(false)
   }, [pathname])
 
-  // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isMenuOpen) {
@@ -34,7 +56,6 @@ const MobileMenu = ({ navItems }: MobileMenuProps) => {
     return () => document.removeEventListener('keydown', handleEscape)
   }, [isMenuOpen])
 
-  // Lock body scroll when menu is open
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = 'hidden'
@@ -48,6 +69,27 @@ const MobileMenu = ({ navItems }: MobileMenuProps) => {
   }, [isMenuOpen])
 
   const closeMenu = () => setIsMenuOpen(false)
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    e.preventDefault()
+    
+    // Convert path to section ID
+    const sectionId = path === '/' ? 'home' : path.slice(1)
+    const section = document.getElementById(sectionId)
+    
+    if (section) {
+      const headerOffset = 80 // Height of your fixed header
+      const elementPosition = section.offsetTop
+      const offsetPosition = elementPosition - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+      
+      closeMenu()
+    }
+  }
 
   return (
     <div className="md:hidden">
@@ -100,7 +142,7 @@ const MobileMenu = ({ navItems }: MobileMenuProps) => {
             >
               <div className="px-4 py-6 space-y-2">
                 {navItems.map((navItem, index) => {
-                  const isActive = pathname === navItem.path
+                  const isActive = activeSection === navItem.path
                   
                   return (
                     <motion.div
@@ -109,14 +151,14 @@ const MobileMenu = ({ navItems }: MobileMenuProps) => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1, duration: 0.3 }}
                     >
-                      <Link
+                      <a
                         href={navItem.path}
-                        className={`block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:ring-offset-1 ${
+                        onClick={(e) => handleClick(e, navItem.path)}
+                        className={`block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:ring-offset-1 cursor-pointer ${
                           isActive 
                             ? 'text-green-600 bg-green-50 shadow-sm border border-green-100' 
                             : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
                         }`}
-                        onClick={closeMenu}
                         aria-current={isActive ? 'page' : undefined}
                       >
                         <span className="flex items-center justify-between">
@@ -130,7 +172,7 @@ const MobileMenu = ({ navItems }: MobileMenuProps) => {
                             />
                           )}
                         </span>
-                      </Link>
+                      </a>
                     </motion.div>
                   )
                 })}

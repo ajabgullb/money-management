@@ -120,7 +120,7 @@ const ContactSection: React.FC = () => {
   }
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-br from-green-50 to-emerald-50 min-h-screen">
+    <section id='contact' className="py-20 px-4 bg-gradient-to-br from-green-50 to-emerald-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

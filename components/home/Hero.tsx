@@ -55,7 +55,7 @@ const Hero = () => {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 overflow-hidden">
+    <section id='home' className="relative min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-emerald-200/30 to-teal-200/30 rounded-full blur-3xl"></div>
@@ -335,6 +335,7 @@ const Hero = () => {
 
         {/* Features Section */}
         <motion.div
+          id='why'
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
@@ -369,7 +370,7 @@ const Hero = () => {
           </div>
         </motion.div>
       </div>
-    </div>
+    </section>
   )
 }
 
