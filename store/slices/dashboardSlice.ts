@@ -5,7 +5,7 @@ export type Tabs = "overview" | "envelopes" | "transactions" | "analytics" | "bu
 const dashboardSlice = createSlice({
   name: "dashboard",
   initialState: {
-    activeTab: "overview" as Tabs,
+    activeTab: "envelopes" as Tabs,
   },
   reducers: {
     setActiveTab: (state, action) => {
