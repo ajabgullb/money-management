@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Tag, Folder, DollarSign, FileText, Loader2, Trash2 } from 'lucide-react';
+import { X, Tag, Folder, DollarSign, FileText, Loader2, Trash2, Plus } from 'lucide-react';
 
 import { removeEnvelope, updateEnvelopePartial, Envelope } from '@/store/slices/envelopeSlice';
 import { useDispatch } from 'react-redux';
@@ -44,6 +44,8 @@ const UpdateEnvelope: React.FC<UpdateEnvelopeDialogProps> = ({
     spent_amount: updatedEnvelope?.spent_amount || 0,
     description: updatedEnvelope?.description || ''
   });
+  
+  const [dailySpend, setDailySpend] = useState<number>(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -51,7 +53,6 @@ const UpdateEnvelope: React.FC<UpdateEnvelopeDialogProps> = ({
 
   const dispatch = useDispatch();
 
-  // Clear form when dialog closes
   useEffect(() => {
     if(isOpen) {
       console.log("ID: ", updatedEnvelope?.envelope_id);
@@ -72,13 +73,13 @@ const UpdateEnvelope: React.FC<UpdateEnvelopeDialogProps> = ({
         spent_amount: updatedEnvelope.spent_amount,
         description: updatedEnvelope.description || ''
       });
+      setDailySpend(0);
       setErrors({});
       setShowDeleteConfirm(false);
     }
 
   }, [updatedEnvelope, isOpen]);
 
-  // Validate form data
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -98,6 +99,10 @@ const UpdateEnvelope: React.FC<UpdateEnvelopeDialogProps> = ({
       newErrors.spent_amount = 'Spent cannot be negative';
     }
 
+    if (dailySpend < 0) {
+      newErrors.dailySpend = 'Daily spend cannot be negative';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -111,6 +116,7 @@ const UpdateEnvelope: React.FC<UpdateEnvelopeDialogProps> = ({
       spent_amount: 0,
       description: ''
     });
+    setDailySpend(0);
     setErrors({});
     setShowDeleteConfirm(false);
   };
@@ -122,13 +128,15 @@ const UpdateEnvelope: React.FC<UpdateEnvelopeDialogProps> = ({
       setIsLoading(true);
       setErrors({});
     
+      const totalSpentAmount = formData.spent_amount + dailySpend;
+      
       const {data, error} = await envelope.updateEnvelope(
         formData.envelope_id, 
         formData.envelope_title, 
         formData.description, 
         formData.allocated_amount, 
         formData.category, 
-        formData.spent_amount
+        totalSpentAmount
       );
   
       if (error) throw new Error('Failed to update envelope', error);
@@ -168,13 +176,9 @@ const UpdateEnvelope: React.FC<UpdateEnvelopeDialogProps> = ({
         throw new Error('Failed to delete envelope');
       }
       
-      // ✅ Update Redux immediately after successful API call
       dispatch(removeEnvelope(updatedEnvelope.envelope_id));
-      
-      // ✅ Notify parent component
       await onDelete(updatedEnvelope.envelope_id);
       
-      // ✅ Close dialog
       setShowDeleteConfirm(false);
       onClose();
       
@@ -191,7 +195,6 @@ const UpdateEnvelope: React.FC<UpdateEnvelopeDialogProps> = ({
 
   const handleChange = (field: keyof Envelope, value: string | number) => {
     if (field === 'allocated_amount' || field === 'spent_amount') {
-      // Convert string to number for amount fields
       const numValue = value === '' ? 0 : parseFloat(value as string);
       setFormData(prev => ({ ...prev, [field]: numValue }));
     } else {
@@ -202,6 +205,19 @@ const UpdateEnvelope: React.FC<UpdateEnvelopeDialogProps> = ({
       setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleDailySpendChange = (value: string) => {
+    const numValue = value === '' ? 0 : parseFloat(value);
+    setDailySpend(numValue);
+    
+    if (errors.dailySpend) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.dailySpend;
         return newErrors;
       });
     }
@@ -310,7 +326,7 @@ const UpdateEnvelope: React.FC<UpdateEnvelopeDialogProps> = ({
                           type="number"
                           name="allocated_amount"
                           step="0.01"
-                          value={formData.allocated_amount}
+                          value={formData.allocated_amount || ''}
                           onChange={(e) => handleChange('allocated_amount', e.target.value)}
                           placeholder="0.00"
                           className={`w-full pl-8 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all ${
@@ -329,7 +345,7 @@ const UpdateEnvelope: React.FC<UpdateEnvelopeDialogProps> = ({
                     <div>
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                         <DollarSign className="w-4 h-4 text-emerald-600" />
-                        Spent
+                        Total Spent
                       </label>
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
@@ -337,21 +353,53 @@ const UpdateEnvelope: React.FC<UpdateEnvelopeDialogProps> = ({
                           type="number"
                           name="spent_amount"
                           step="0.01"
-                          value={formData.spent_amount}
+                          value={formData.spent_amount || ''}
                           onChange={(e) => handleChange('spent_amount', e.target.value)}
                           placeholder="0.00"
-                          className={`w-full pl-8 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all ${
+                          className={`w-full pl-8 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-gray-50 ${
                             errors.spent_amount 
                               ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
                               : 'border-gray-300'
                           }`}
                           disabled={isLoading || isDeleting}
+                          readOnly
                         />
                       </div>
                       {errors.spent_amount && (
                         <p className="text-red-600 text-sm mt-1">{errors.spent_amount}</p>
                       )}
                     </div>
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <label className="flex items-center gap-2 text-sm font-medium text-blue-900 mb-2">
+                      <Plus className="w-4 h-4 text-blue-600" />
+                      Add Today's Spending
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={dailySpend || ''}
+                        onChange={(e) => handleDailySpendChange(e.target.value)}
+                        placeholder="0.00"
+                        className={`w-full pl-8 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white ${
+                          errors.dailySpend 
+                            ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+                            : 'border-blue-300'
+                        }`}
+                        disabled={isLoading || isDeleting}
+                      />
+                    </div>
+                    {errors.dailySpend && (
+                      <p className="text-red-600 text-sm mt-1">{errors.dailySpend}</p>
+                    )}
+                    {dailySpend > 0 && (
+                      <p className="text-xs text-blue-700 mt-2">
+                        New total will be: <span className="font-semibold">${(formData.spent_amount + dailySpend).toFixed(2)}</span>
+                      </p>
+                    )}
                   </div>
 
                   <div>

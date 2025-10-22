@@ -9,7 +9,7 @@ import { RootState } from '@/store/store';
 
 import EnvelopesSkeleton from './EnvelopeSkeleton';
 import UpdateEnvelope from '@/components/popups/UpdateEnvelope';
-import { setEnvelopes, updateEnvelope, removeEnvelope, Envelope } from '@/store/slices/envelopeSlice';
+import { setEnvelopes, updateEnvelope, Envelope } from '@/store/slices/envelopeSlice';
 
 export default function EnvelopesPage() {
   const [searchTerm, setSearchTerm] = useState('');
